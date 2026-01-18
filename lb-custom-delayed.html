@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Take a moment...</title>
+    <style>
+        :root {
+            /* Default theme - Purple gradient */
+            --gradient-start: #667eea;
+            --gradient-end: #764ba2;
+            --text-color: #ffffff;
+            --glass-bg: rgba(255, 255, 255, 0.15);
+            --glass-border: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Theme variations via data attributes */
+        [data-theme="ocean"] {
+            --gradient-start: #2193b0;
+            --gradient-end: #6dd5ed;
+        }
+
+        [data-theme="sunset"] {
+            --gradient-start: #f12711;
+            --gradient-end: #f5af19;
+        }
+
+        [data-theme="forest"] {
+            --gradient-start: #134e5e;
+            --gradient-end: #71b280;
+        }
+
+        [data-theme="dark"] {
+            --gradient-start: #232526;
+            --gradient-end: #414345;
+        }
+
+        [data-theme="rose"] {
+            --gradient-start: #e96443;
+            --gradient-end: #904e95;
+        }
+
+        [data-theme="mint"] {
+            --gradient-start: #11998e;
+            --gradient-end: #38ef7d;
+        }
+    </style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+            color: var(--text-color);
+            overflow: hidden;
+        }
+
+        /* Animated background elements - subtle on mobile */
+        .bg-circle {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.08;
+            animation: float 20s infinite ease-in-out;
+        }
+
+        .bg-circle:nth-child(1) {
+            width: 400px;
+            height: 400px;
+            top: -200px;
+            left: -200px;
+            background: rgba(255, 255, 255, 0.1);
+            animation-delay: 0s;
+        }
+
+        .bg-circle:nth-child(2) {
+            width: 300px;
+            height: 300px;
+            bottom: -150px;
+            right: -150px;
+            background: rgba(255, 255, 255, 0.15);
+            animation-delay: 5s;
+        }
+
+        .bg-circle:nth-child(3) {
+            width: 250px;
+            height: 250px;
+            top: 40%;
+            right: -125px;
+            background: rgba(255, 255, 255, 0.08);
+            animation-delay: 10s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-30px) scale(1.05); }
+        }
+
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 100%;
+            min-height: 100vh;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-radius: 0;
+            padding: 80px 32px 60px;
+            box-shadow: inset 0 1px 0 var(--glass-border);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .icon-container {
+            margin-bottom: 48px;
+            animation: fadeIn 0.8s ease-out 0.2s both;
+        }
+
+        .zen-icon {
+            font-size: 96px;
+            line-height: 1;
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+        }
+
+        /* SVG icon styling */
+        .zen-icon svg {
+            width: 140px;
+            height: 140px;
+            display: block;
+            margin: 0 auto;
+            filter: drop-shadow(0 8px 16px rgba(0, 0, 0, 0.3));
+        }
+
+        /* Make SVG colors adapt to theme */
+        .zen-icon svg .st1 {
+            fill: var(--text-color) !important;
+        }
+
+        /* SVG shadow adapts to theme */
+        .zen-icon svg .st0 path {
+            fill: rgba(0, 0, 0, 0.15) !important;
+        }
+
+        /* Hide emoji when SVG is present */
+        .zen-icon.has-svg .emoji-icon {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        h1 {
+            font-size: 42px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            letter-spacing: -0.5px;
+            animation: fadeIn 0.8s ease-out 0.3s both;
+            line-height: 1.2;
+        }
+
+        .message {
+            font-size: 20px;
+            margin-bottom: 60px;
+            opacity: 0.95;
+            font-weight: 400;
+            line-height: 1.5;
+            animation: fadeIn 0.8s ease-out 0.4s both;
+        }
+
+        .countdown-container {
+            margin-bottom: 48px;
+            animation: fadeIn 0.8s ease-out 0.5s both;
+        }
+
+        .countdown {
+            font-size: 96px;
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 20px;
+            font-variant-numeric: tabular-nums;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            letter-spacing: -2px;
+        }
+
+        .countdown-label {
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            opacity: 0.9;
+            font-weight: 600;
+        }
+
+        .progress-bar {
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto 48px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffffff 0%, rgba(255, 255, 255, 0.9) 100%);
+            border-radius: 10px;
+            transition: width 1s linear;
+            box-shadow: 0 0 12px rgba(255, 255, 255, 0.6);
+        }
+
+        .site-info {
+            font-size: 16px;
+            opacity: 0.8;
+            margin-top: 32px;
+            padding-top: 32px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+            word-break: break-all;
+        }
+
+        .site-url {
+            color: rgba(255, 255, 255, 0.95);
+            text-decoration: none;
+            font-weight: 600;
+            margin: 0 4px;
+        }
+
+        /* Pulse animation for the countdown */
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .countdown.pulse {
+            animation: pulse 0.5s ease-in-out;
+        }
+
+        /* Hide LeechBlock default elements */
+        #lbCountdownText,
+        #lbSupportDiv {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Background decoration -->
+    <div class="bg-circle"></div>
+    <div class="bg-circle"></div>
+    <div class="bg-circle"></div>
+
+    <div class="container">
+        <div class="icon-container">
+            <div class="zen-icon" id="customIcon">
+                <span class="emoji-icon">🪷</span>
+                <!-- SVG icon will be inserted here via JavaScript -->
+            </div>
+        </div>
+
+        <h1>Is this important?</h1>
+        
+        <p class="message" id="customMessage">Take a moment to reflect before continuing</p>
+
+        <div class="countdown-container">
+            <div class="countdown" id="customCountdown">60</div>
+            <div class="countdown-label">SECONDS</div>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressBar"></div>
+        </div>
+
+        <div class="site-info">
+            Attempting to visit: <span class="site-url" id="blockedUrl">x.com</span>
+        </div>
+    </div>
+
+    <script>
+        // ========================================
+        // BUILT-IN SVG ICONS
+        // ========================================
+        
+        const SVG_ICONS = {
+            // Simplified LeechBlock logo (monochrome - uses text color)
+            'leechblock': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340.8 456.5">
+                <style>
+                    .lb-shield { fill: currentColor; opacity: 0.9; }
+                    .lb-letter { fill: currentColor; }
+                    .lb-shadow { fill: rgba(0, 0, 0, 0.2); }
+                </style>
+                <!-- Shadow -->
+                <path class="lb-shadow" d="M177.3,19.1C129.4,44.7,70,50,21.5,54.2l-1.1,219c.4,4,.5,4.6,1.6,9.1c16.3,67.9,83.9,130.7,155.2,161,71.4-30.3,138.9-93.1,155.2-161,1.1-4.5,1.2-5.1,1.6-9.1l-1.1-219c-48.4-4.2-107.8-9.5-155.7-35.1h0Z"/>
+                <!-- Shield outline -->
+                <path class="lb-shield" d="M171.6,13.4C123.7,39,64.3,44.3,15.8,48.5l-1.1,219c.4,4,.5,4.6,1.6,9.1,16.3,67.9,83.9,130.7,155.2,161,71.4-30.3,138.9-93.1,155.2-161,1.1-4.5,1.2-5.1,1.6-9.1l-1.1-219c-48.4-4.2-107.8-9.5-155.7-35.1h0Z" fill="none" stroke="currentColor" stroke-width="8"/>
+                <!-- Letter L -->
+                <path class="lb-letter" d="M101.5,309.9c-8.2-2.4-14-7.4-17.4-15.1-1.6-3.5-3-4.9-3-12.4s1.4-8.3,2.9-11.3c3.5-7.1,11.4-12.5,21.2-14.6,3.7-.8,7.8-1,16-.8l11.1.2v-6.9c0-12.2,2.7-35.6,5.6-49.4.6-2.7,1-5.3,1-6s-2-2.3-5.2-4.2c-6.4-3.8-11.5-8.3-13.7-12.2-1.4-2.3-1.7-3.5-1.4-5.9.7-6,3-6.3,15-1.6,4.7,1.8,9.2,3.4,10,3.5,1.2.1,1.9-1,5.1-9.1,12.4-31,30.4-50.2,51.4-54.9,6.1-1.4,20.8-1,26.9.7,15.8,4.3,23.7,14,24.6,30.1,1.3,23.7-14.8,43.8-41.8,52.4-9.2,2.9-15.5,4-31.3,5.6l-5,.5-.8,7.6c-1,9.4-2.2,32.8-2.2,42.9,0,6.6-.6,12.9-1.6,17.6-.3,1.2.9,2,9.5,6.1,10.7,5.2,17.2,7.1,25.5,7.8,11.6.9,17.9-3.2,33.4-21.7,11.3-13.4,14-15.3,16.1-11.2,1.3,2.6,1.3,10.9,0,16.1-1.1,4.1-4.5,11.6-7,15.2-11.2,16.2-26.8,26-45,28.2-12.1,1.5-21.4-.6-37.2-8.5l-10.1-5-4.2,3.9c-5.2,4.7-11.4,8.3-19.3,11-5.4,1.8-6.9,2.1-15.5,2.2-7.8.2-10.3,0-13.6-1h0ZM121.8,290.5c1.2-.4,3-1.5,4-2.4,1.9-1.8,4.8-7.8,4.2-8.7-.2-.3-2.1-1.3-4.2-2.1-5.2-2-12.2-2.1-15.3-.2-5,3-5,10.5,0,13,2.6,1.3,8,1.5,11.3.4h0ZM195,172.4c9.1-3,15.3-6.7,21.2-12.6,4.4-4.3,5.2-5.5,6.2-8.9,2-7-.1-13.7-5.3-16.2-3.6-1.8-10.3-1.8-14.9,0-8.3,3.1-15.2,12.1-20.3,26.5-2.3,6.3-4.1,12.6-4.1,14s9.2,0,17.2-2.8h0Z"/>
+            </svg>`,
+            
+            // Colored gradient version of LeechBlock logo
+            'leechblock-color': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 340.8 456.5">
+                <defs>
+                    <linearGradient id="shieldGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                        <stop offset="0%" style="stop-color:var(--gradient-start);stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:var(--gradient-end);stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                <style>
+                    .lb-shield-color { fill: url(#shieldGradient); }
+                    .lb-letter-color { fill: white; }
+                    .lb-shadow { fill: rgba(0, 0, 0, 0.2); }
+                </style>
+                <!-- Shadow -->
+                <path class="lb-shadow" d="M177.3,19.1C129.4,44.7,70,50,21.5,54.2l-1.1,219c.4,4,.5,4.6,1.6,9.1c16.3,67.9,83.9,130.7,155.2,161,71.4-30.3,138.9-93.1,155.2-161,1.1-4.5,1.2-5.1,1.6-9.1l-1.1-219c-48.4-4.2-107.8-9.5-155.7-35.1h0Z"/>
+                <!-- Shield with gradient fill -->
+                <path class="lb-shield-color" d="M171.6,13.4C123.7,39,64.3,44.3,15.8,48.5l-1.1,219c.4,4,.5,4.6,1.6,9.1,16.3,67.9,83.9,130.7,155.2,161,71.4-30.3,138.9-93.1,155.2-161,1.1-4.5,1.2-5.1,1.6-9.1l-1.1-219c-48.4-4.2-107.8-9.5-155.7-35.1h0Z"/>
+                <!-- Letter L in white -->
+                <path class="lb-letter-color" d="M101.5,309.9c-8.2-2.4-14-7.4-17.4-15.1-1.6-3.5-3-4.9-3-12.4s1.4-8.3,2.9-11.3c3.5-7.1,11.4-12.5,21.2-14.6,3.7-.8,7.8-1,16-.8l11.1.2v-6.9c0-12.2,2.7-35.6,5.6-49.4.6-2.7,1-5.3,1-6s-2-2.3-5.2-4.2c-6.4-3.8-11.5-8.3-13.7-12.2-1.4-2.3-1.7-3.5-1.4-5.9.7-6,3-6.3,15-1.6,4.7,1.8,9.2,3.4,10,3.5,1.2.1,1.9-1,5.1-9.1,12.4-31,30.4-50.2,51.4-54.9,6.1-1.4,20.8-1,26.9.7,15.8,4.3,23.7,14,24.6,30.1,1.3,23.7-14.8,43.8-41.8,52.4-9.2,2.9-15.5,4-31.3,5.6l-5,.5-.8,7.6c-1,9.4-2.2,32.8-2.2,42.9,0,6.6-.6,12.9-1.6,17.6-.3,1.2.9,2,9.5,6.1,10.7,5.2,17.2,7.1,25.5,7.8,11.6.9,17.9-3.2,33.4-21.7,11.3-13.4,14-15.3,16.1-11.2,1.3,2.6,1.3,10.9,0,16.1-1.1,4.1-4.5,11.6-7,15.2-11.2,16.2-26.8,26-45,28.2-12.1,1.5-21.4-.6-37.2-8.5l-10.1-5-4.2,3.9c-5.2,4.7-11.4,8.3-19.3,11-5.4,1.8-6.9,2.1-15.5,2.2-7.8.2-10.3,0-13.6-1h0ZM121.8,290.5c1.2-.4,3-1.5,4-2.4,1.9-1.8,4.8-7.8,4.2-8.7-.2-.3-2.1-1.3-4.2-2.1-5.2-2-12.2-2.1-15.3-.2-5,3-5,10.5,0,13,2.6,1.3,8,1.5,11.3.4h0ZM195,172.4c9.1-3,15.3-6.7,21.2-12.6,4.4-4.3,5.2-5.5,6.2-8.9,2-7-.1-13.7-5.3-16.2-3.6-1.8-10.3-1.8-14.9,0-8.3,3.1-15.2,12.1-20.3,26.5-2.3,6.3-4.1,12.6-4.1,14s9.2,0,17.2-2.8h0Z"/>
+            </svg>`,
+            
+            // Simple shield icon
+            'shield': `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 2L3 7v6c0 5 4 9 9 12 5-3 9-7 9-12V7l-9-5z"/>
+            </svg>`
+        };
+        
+        // ========================================
+        // THEME CUSTOMIZATION VIA URL PARAMETERS
+        // ========================================
+        // Usage: ?theme=ocean&message=Focus!&icon=🎯&$S&$U
+        // Or: ?theme=ocean&icon=leechblock&$S&$U  (for SVG)
+        
+        const urlParams = new URLSearchParams(window.location.search);
+        
+        // Apply theme from URL parameter
+        const theme = urlParams.get('theme');
+        if (theme) {
+            document.documentElement.setAttribute('data-theme', theme);
+        }
+        
+        // Apply custom message from URL parameter
+        const customMessage = urlParams.get('message');
+        if (customMessage) {
+            document.getElementById('customMessage').textContent = decodeURIComponent(customMessage);
+        }
+        
+        // Apply custom icon from URL parameter (emoji or SVG)
+        const customIcon = urlParams.get('icon');
+        const iconElement = document.getElementById('customIcon');
+        const emojiElement = iconElement.querySelector('.emoji-icon');
+        
+        if (customIcon) {
+            // Check if it's a predefined SVG icon
+            if (SVG_ICONS[customIcon]) {
+                iconElement.classList.add('has-svg');
+                iconElement.insertAdjacentHTML('beforeend', SVG_ICONS[customIcon]);
+            } else {
+                // It's an emoji
+                emojiElement.textContent = decodeURIComponent(customIcon);
+            }
+        }
+        
+        // ========================================
+        // LEECHBLOCK INTEGRATION
+        // ========================================
+        // LeechBlock injects blocked.js which manages the countdown
+        // We just need to read from the elements it updates
+        
+        // Get the blocked URL from parameters
+        const blockedUrlParam = urlParams.get('$U') || urlParams.get('u');
+        if (blockedUrlParam) {
+            try {
+                const url = new URL(decodeURIComponent(blockedUrlParam));
+                document.getElementById('blockedUrl').textContent = url.hostname;
+            } catch (e) {
+                document.getElementById('blockedUrl').textContent = decodeURIComponent(blockedUrlParam);
+            }
+        }
+        
+        // Monitor the LeechBlock countdown element
+        const delayElement = document.getElementById('lbDelaySeconds');
+        const customCountdown = document.getElementById('customCountdown');
+        const progressBar = document.getElementById('progressBar');
+        
+        let totalSeconds = 60; // Default, will be updated
+        let lastSeconds = -1;
+        
+        function updateDisplay() {
+            if (!delayElement) return;
+            
+            const currentSeconds = parseInt(delayElement.textContent) || 0;
+            
+            // Initialize total on first run
+            if (lastSeconds === -1) {
+                totalSeconds = currentSeconds;
+                lastSeconds = currentSeconds;
+            }
+            
+            // Update if changed
+            if (currentSeconds !== lastSeconds) {
+                lastSeconds = currentSeconds;
+                customCountdown.textContent = currentSeconds;
+                
+                // Add pulse animation
+                customCountdown.classList.remove('pulse');
+                void customCountdown.offsetWidth; // Trigger reflow
+                customCountdown.classList.add('pulse');
+                
+                // Update progress bar
+                const progress = ((totalSeconds - currentSeconds) / totalSeconds) * 100;
+                progressBar.style.width = Math.min(progress, 100) + '%';
+            }
+        }
+        
+        // Update every 100ms for smooth animation
+        setInterval(updateDisplay, 100);
+        
+        // Initial update
+        setTimeout(updateDisplay, 100);
+    </script>
+    
+    <!-- LeechBlock Integration Elements (Hidden but necessary) -->
+    <div style="display: none;">
+        <div id="lbCountdownText">
+            The page will be unblocked in <span id="lbDelaySeconds" class="delay">0</span> second(s).
+        </div>
+        <div id="lbSupportDiv"></div>
+        <div id="lbCustomMsgDiv"></div>
+    </div>
+</body>
+</html>
