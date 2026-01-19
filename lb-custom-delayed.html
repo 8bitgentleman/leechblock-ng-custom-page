@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html id="lbDelayingPage" lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -256,6 +256,26 @@
             font-weight: 500;
         }
 
+        .continue-button {
+            display: none;
+            margin-top: 32px;
+            padding: 16px 48px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 12px;
+            color: white;
+            font-size: 18px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .continue-button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+
         .site-url {
             color: rgba(255, 255, 255, 0.95);
             text-decoration: none;
@@ -307,11 +327,13 @@
             <div class="progress-fill" id="progressBar"></div>
         </div>
 
+        <a id="continueButton" class="continue-button" href="#">Continue to site</a>
+
         <div class="site-info">
             Attempting to visit: <span class="site-url" id="blockedUrl">x.com</span>
         </div>
 
-        <div class="version">v1.3.0</div>
+        <div class="version">v1.4.0</div>
     </div>
 
     <!-- LeechBlock Integration Elements (Hidden but necessary) -->
@@ -462,6 +484,7 @@
 
         // Run local countdown
         let countdownInterval;
+        const continueButton = document.getElementById('continueButton');
 
         function updateCountdown() {
             if (currentSeconds > 0) {
@@ -478,10 +501,24 @@
                 const progress = ((totalSeconds - currentSeconds) / totalSeconds) * 100;
                 progressBar.style.width = Math.min(progress, 100) + '%';
 
-                // Redirect when countdown reaches 0
-                if (currentSeconds === 0 && blockedUrl) {
+                // When countdown reaches 0
+                if (currentSeconds === 0) {
                     clearInterval(countdownInterval);
-                    window.location.href = blockedUrl;
+
+                    // Try to notify LeechBlock extension (if script injection worked)
+                    if (typeof browser !== 'undefined' && browser.runtime) {
+                        browser.runtime.sendMessage({
+                            type: "delayed",
+                            blockedURL: blockedUrl,
+                            blockedSet: 1
+                        });
+                    }
+
+                    // Show continue button as fallback
+                    if (continueButton && blockedUrl) {
+                        continueButton.href = blockedUrl;
+                        continueButton.style.display = 'inline-block';
+                    }
                 }
             }
         }
