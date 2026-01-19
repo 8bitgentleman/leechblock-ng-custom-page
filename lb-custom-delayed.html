@@ -52,17 +52,20 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            overflow: hidden;
+            position: fixed;
+            width: 100%;
+            height: 100%;
+        }
+
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
             background: linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%);
-            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 0;
-            margin: 0;
             color: var(--text-color);
-            overflow: hidden;
         }
 
         /* Animated background elements - subtle on mobile */
@@ -109,7 +112,7 @@
             text-align: center;
             width: 100%;
             max-width: 100%;
-            min-height: 100vh;
+            height: 100%;
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
             border-radius: 0;
@@ -121,6 +124,7 @@
             display: flex;
             flex-direction: column;
             justify-content: center;
+            overflow: hidden;
         }
 
         @keyframes slideUp {
@@ -243,6 +247,15 @@
             word-break: break-all;
         }
 
+        .version {
+            position: absolute;
+            bottom: 16px;
+            right: 16px;
+            font-size: 11px;
+            opacity: 0.4;
+            font-weight: 500;
+        }
+
         .site-url {
             color: rgba(255, 255, 255, 0.95);
             text-decoration: none;
@@ -297,6 +310,8 @@
         <div class="site-info">
             Attempting to visit: <span class="site-url" id="blockedUrl">x.com</span>
         </div>
+
+        <div class="version">v1.1.0</div>
     </div>
 
     <script>
@@ -386,60 +401,78 @@
         // ========================================
         // LEECHBLOCK INTEGRATION
         // ========================================
-        // LeechBlock injects blocked.js which manages the countdown
-        // We just need to read from the elements it updates
-        
-        // Get the blocked URL from parameters
-        const blockedUrlParam = urlParams.get('$U') || urlParams.get('u');
-        if (blockedUrlParam) {
-            try {
-                const url = new URL(decodeURIComponent(blockedUrlParam));
-                document.getElementById('blockedUrl').textContent = url.hostname;
-            } catch (e) {
-                document.getElementById('blockedUrl').textContent = decodeURIComponent(blockedUrlParam);
+        // LeechBlock replaces $S with seconds and $U with the blocked URL
+        // We parse these from the URL and run our own countdown
+
+        // Parse the URL to extract delay seconds and blocked URL
+        // LeechBlock formats: ?params&SECONDS&BLOCKED_URL
+        // The $S becomes a bare number, $U becomes the URL
+        const searchParams = window.location.search.substring(1); // Remove leading ?
+        const parts = searchParams.split('&');
+
+        let delaySeconds = 60; // Default fallback
+        let blockedUrl = '';
+
+        // Find the delay seconds (a bare number) and blocked URL (starts with http)
+        for (const part of parts) {
+            // Skip key=value pairs
+            if (part.includes('=')) continue;
+
+            // Check if it's a number (the delay seconds from $S)
+            const num = parseInt(part, 10);
+            if (!isNaN(num) && num > 0 && num <= 3600) {
+                delaySeconds = num;
+            }
+            // Check if it's a URL (the blocked URL from $U)
+            else if (part.startsWith('http')) {
+                blockedUrl = decodeURIComponent(part);
             }
         }
-        
-        // Monitor the LeechBlock countdown element
-        const delayElement = document.getElementById('lbDelaySeconds');
+
+        // Display the blocked URL
+        if (blockedUrl) {
+            try {
+                const url = new URL(blockedUrl);
+                document.getElementById('blockedUrl').textContent = url.hostname;
+            } catch (e) {
+                document.getElementById('blockedUrl').textContent = blockedUrl;
+            }
+        }
+
+        // Countdown elements
         const customCountdown = document.getElementById('customCountdown');
         const progressBar = document.getElementById('progressBar');
-        
-        let totalSeconds = 60; // Default, will be updated
-        let lastSeconds = -1;
-        
-        function updateDisplay() {
-            if (!delayElement) return;
-            
-            const currentSeconds = parseInt(delayElement.textContent) || 0;
-            
-            // Initialize total on first run
-            if (lastSeconds === -1) {
-                totalSeconds = currentSeconds;
-                lastSeconds = currentSeconds;
-            }
-            
-            // Update if changed
-            if (currentSeconds !== lastSeconds) {
-                lastSeconds = currentSeconds;
+        const lbDelayElement = document.getElementById('lbDelaySeconds');
+
+        let totalSeconds = delaySeconds;
+        let currentSeconds = delaySeconds;
+
+        // Initialize display
+        customCountdown.textContent = currentSeconds;
+        lbDelayElement.textContent = currentSeconds;
+
+        // Run local countdown
+        function updateCountdown() {
+            if (currentSeconds > 0) {
+                currentSeconds--;
                 customCountdown.textContent = currentSeconds;
-                
+                lbDelayElement.textContent = currentSeconds;
+
                 // Add pulse animation
                 customCountdown.classList.remove('pulse');
                 void customCountdown.offsetWidth; // Trigger reflow
                 customCountdown.classList.add('pulse');
-                
+
                 // Update progress bar
                 const progress = ((totalSeconds - currentSeconds) / totalSeconds) * 100;
                 progressBar.style.width = Math.min(progress, 100) + '%';
             }
         }
-        
-        // Update every 100ms for smooth animation
-        setInterval(updateDisplay, 100);
-        
-        // Initial update
-        setTimeout(updateDisplay, 100);
+
+        // Start countdown after a brief delay to let page render
+        setTimeout(() => {
+            setInterval(updateCountdown, 1000);
+        }, 500);
     </script>
     
     <!-- LeechBlock Integration Elements (Hidden but necessary) -->
