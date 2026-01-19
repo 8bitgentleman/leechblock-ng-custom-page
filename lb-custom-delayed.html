@@ -311,7 +311,7 @@
             Attempting to visit: <span class="site-url" id="blockedUrl">x.com</span>
         </div>
 
-        <div class="version">v1.1.0</div>
+        <div class="version">v1.2.0</div>
     </div>
 
     <script>
@@ -452,6 +452,8 @@
         lbDelayElement.textContent = currentSeconds;
 
         // Run local countdown
+        let countdownInterval;
+
         function updateCountdown() {
             if (currentSeconds > 0) {
                 currentSeconds--;
@@ -466,12 +468,18 @@
                 // Update progress bar
                 const progress = ((totalSeconds - currentSeconds) / totalSeconds) * 100;
                 progressBar.style.width = Math.min(progress, 100) + '%';
+
+                // Redirect when countdown reaches 0
+                if (currentSeconds === 0 && blockedUrl) {
+                    clearInterval(countdownInterval);
+                    window.location.href = blockedUrl;
+                }
             }
         }
 
         // Start countdown after a brief delay to let page render
         setTimeout(() => {
-            setInterval(updateCountdown, 1000);
+            countdownInterval = setInterval(updateCountdown, 1000);
         }, 500);
     </script>
     
